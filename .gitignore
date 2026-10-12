@@ -1,0 +1,47 @@
+# ================= Keil MDK 构建产物 =================
+# 这两个目录加起来 138MB，全是 .o / .crf / .d 编译中间文件
+MDK-ARM/six_robot/
+MDK-ARM/robot/
+MDK-ARM/DebugConfig/
+MDK-ARM/*.uvguix.*
+MDK-ARM/JLinkLog.txt
+MDK-ARM/JLinkSettings.ini
+MDK-ARM/*.lst
+
+# Keil 中间文件（散落在别处时兜底）
+*.o
+*.d
+*.crf
+*.dep
+*.axf
+*.hex
+*.bin
+*.map
+*.htm
+*.build_log.htm
+*.iex
+*.lnp
+*.browse
+*.bak
+*.ddk
+*.edk
+*.tra
+*.uvguix.*
+
+# 注意：以下【不要】忽略，它们是工程的一部分
+#   MDK-ARM/*.uvprojx     工程文件（文件列表、目标选项）
+#   MDK-ARM/*.uvoptx      调试器/烧录设置（J-Link 配置在这里）
+#   MDK-ARM/RTE/          RTE_Components.h
+#   MDK-ARM/startup_stm32f407xx.s
+#   MDK-ARM/*.sct         分散加载文件（如果自己改过就必须留）
+
+# ================= 工具缓存 =================
+.dsh-vision-router/
+
+# ================= 编辑器 / 系统 =================
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+*.swp
+*~
