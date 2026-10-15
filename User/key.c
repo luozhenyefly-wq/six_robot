@@ -4,7 +4,7 @@ volatile uint8_t bt_go_flag;
 extern volatile uint8_t gait_want_mode;
 extern volatile float Pitch, Roll, Yaw;
 
-void robot_go_key(void)//PB6£¬°´ÏÂºó»úÆ÷ÈË²Å»á¿ªÊ¼½ÓÊÕÃüÁîÒÆ¶¯
+void robot_go_key(void)//PB6ï¼ŒæŒ‰ä¸‹åæœºå™¨äººæ‰ä¼šå¼€å§‹æ¥æ”¶å‘½ä»¤ç§»åŠ¨
 {
     if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == 0) 
     {

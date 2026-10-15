@@ -7,22 +7,22 @@
 #include "cmsis_os.h"
 #include "PID.h"
 #include "face.h"
-/* ---- ÔË¶¯²ÎÊı ---- */
-#define BT_V_FWD       10.0f    //Ç°½ø²½·ù cm //12
-#define BT_V_BACK     -10.0f    //ºóÍË²½·ù cm 
-#define BT_TURN        10.0f    //Ô­µØ×ªÍä²½·ù cm //8
+/* ---- è¿åŠ¨å‚æ•° ---- */
+#define BT_V_FWD       10.0f    //å‰è¿›æ­¥å¹… cm //12
+#define BT_V_BACK     -10.0f    //åé€€æ­¥å¹… cm 
+#define BT_TURN        10.0f    //åŸåœ°è½¬å¼¯æ­¥å¹… cm //8
 
-/* ---- ½Ç¶ÈÂ¼Èë×´Ì¬»ú ---- */
+/* ---- è§’åº¦å½•å…¥çŠ¶æ€æœº ---- */
 #define BT_ST_IDLE     0u
-#define BT_ST_SIGN     1u       //ÒÑÊÕµ½ 'A'£¬µÈ·ûºÅ»òÊı×Ö 
-#define BT_ST_NUM      2u       //ÕıÔÚÂ¼Êı×Ö 
+#define BT_ST_SIGN     1u       //å·²æ”¶åˆ° 'A'ï¼Œç­‰ç¬¦å·æˆ–æ•°å­— 
+#define BT_ST_NUM      2u       //æ­£åœ¨å½•æ•°å­— 
 
 #define BT_ANGLE_TIMEOUT_MS   100u
-#define BT_POLL_TIMEOUT_MS   100u      /* ¶ÓÁĞ×èÈû³¬Ê± = ½Ç¶ÈÂ¼Èë³¬Ê± */
+#define BT_POLL_TIMEOUT_MS   100u      /* é˜Ÿåˆ—é˜»å¡è¶…æ—¶ = è§’åº¦å½•å…¥è¶…æ—¶ */
 
-void Bt_Init(void);             /* Æô¶¯½ÓÊÕ£¬ÔÚ main() Àïµ÷Ò»´Î */
-void Bt_OnRxComplete(void);     /* ÓÉ HAL_UART_RxCpltCallback µ÷ÓÃ */
-void Bt_Poll(void);             /* ÓÉ bt_control_Task Ñ­»·µ÷ÓÃ */
+void Bt_Init(void);             /* å¯åŠ¨æ¥æ”¶ï¼Œåœ¨ main() é‡Œè°ƒä¸€æ¬¡ */
+void Bt_OnRxComplete(void);     /* ç”± HAL_UART_RxCpltCallback è°ƒç”¨ */
+void Bt_Poll(void);             /* ç”± bt_control_Task å¾ªç¯è°ƒç”¨ */
 void Bt_OnError(void);
 
 #endif

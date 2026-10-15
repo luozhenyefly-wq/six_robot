@@ -10,18 +10,18 @@
 
 #define STAND       (0)
 #define MOVE        (1)
-#define GAIT_FRAME_GAP   15u	//´®¿Ú·¢ËÍ¼ä¸ô(·ÀÖ¹Çı¶¯°å´®¿Ú»º³åÇø±¬Âú)
-#define GAIT_N           8u	//ÔË¶¯µÄÖ¡Êı//8£¬1000//12£¬1400
-#define GAIT_CYCLE_MS    1000u  //ÔË¶¯ÖÜÆÚ£¬ms
-#define GAIT_T_FRAME     (GAIT_CYCLE_MS / GAIT_N)   //Ò»Ö¡¶¯×÷ĞèÒªµÄÊ±¼ä   
-#define GAIT_OVERHEAD    (24u + GAIT_FRAME_GAP)     //´®¿Ú·¢ËÍÏûÏ¢×ÜºÄÊ±£¬24msÊÇ´®¿ÚÁ½´Î·¢ËÍµÄËùĞèÊ±¼ä
-#define GAIT_DWELL       (GAIT_T_FRAME - GAIT_OVERHEAD) //»º³åÊ±¼ä£¬Ò²¾ÍÊÇµ½ÏÂÒ»´Î¶¯×÷Ö¡·¢ËÍµÄ¼ä¸ô
-#define GAIT_SWING_FRAC   0.35f   //°Ú¶¯ÏàÕ¼Õû¸öÖÜÆÚµÄÕ¼±È
-#define GAIT_Z_STAND     (-6.0f)  //Õ¾Á¢Ê±½Å¶Ë Z£¬»úÉíÀëµØ 60mm 
-#define GAIT_Z_LIFT      (-1.5f)  //°Ú¶¯ÏàÌ§ÍÈ¸ß¶È£¬ÀëµØ 45mm
-#define YAW_TURN_SIGN    (1.0f)  //ÔÚpidÀïÃæÒªÓÃµ½µÄ·½Ïò³£Á¿
-#define HOLD_ENTER_DEG   1.5f      /* ½øÕâ¸ö·¶Î§¾ÍÍ£²½ */
-#define HOLD_EXIT_DEG    3.5f      /* Æ«Àë³¬¹ıÕâ¸ö²ÅÖØĞÂ×ª */
+#define GAIT_FRAME_GAP   15u	//ä¸²å£å‘é€é—´éš”(é˜²æ­¢é©±åŠ¨æ¿ä¸²å£ç¼“å†²åŒºçˆ†æ»¡)
+#define GAIT_N           8u	//è¿åŠ¨çš„å¸§æ•°//8ï¼Œ1000//12ï¼Œ1400
+#define GAIT_CYCLE_MS    1000u  //è¿åŠ¨å‘¨æœŸï¼Œms
+#define GAIT_T_FRAME     (GAIT_CYCLE_MS / GAIT_N)   //ä¸€å¸§åŠ¨ä½œéœ€è¦çš„æ—¶é—´   
+#define GAIT_OVERHEAD    (24u + GAIT_FRAME_GAP)     //ä¸²å£å‘é€æ¶ˆæ¯æ€»è€—æ—¶ï¼Œ24msæ˜¯ä¸²å£ä¸¤æ¬¡å‘é€çš„æ‰€éœ€æ—¶é—´
+#define GAIT_DWELL       (GAIT_T_FRAME - GAIT_OVERHEAD) //ç¼“å†²æ—¶é—´ï¼Œä¹Ÿå°±æ˜¯åˆ°ä¸‹ä¸€æ¬¡åŠ¨ä½œå¸§å‘é€çš„é—´éš”
+#define GAIT_SWING_FRAC   0.35f   //æ‘†åŠ¨ç›¸å æ•´ä¸ªå‘¨æœŸçš„å æ¯”
+#define GAIT_Z_STAND     (-6.0f)  //ç«™ç«‹æ—¶è„šç«¯ Zï¼Œæœºèº«ç¦»åœ° 60mm 
+#define GAIT_Z_LIFT      (-1.5f)  //æ‘†åŠ¨ç›¸æŠ¬è…¿é«˜åº¦ï¼Œç¦»åœ° 45mm
+#define YAW_TURN_SIGN    (1.0f)  //åœ¨pidé‡Œé¢è¦ç”¨åˆ°çš„æ–¹å‘å¸¸é‡
+#define HOLD_ENTER_DEG   1.5f      /* è¿›è¿™ä¸ªèŒƒå›´å°±åœæ­¥ */
+#define HOLD_EXIT_DEG    3.5f      /* åç¦»è¶…è¿‡è¿™ä¸ªæ‰é‡æ–°è½¬ */
 
 extern volatile float   gait_v;
 extern volatile float   gait_turn;
@@ -29,7 +29,7 @@ extern volatile uint8_t gait_pid_en;
 extern volatile float   gait_yaw_target;
 extern volatile uint8_t gait_stop_req; 
 
-// Ò»¸ö¶æ»úÄ¿±ê£º¶æ»úºÅ + Ä¿±ê½Ç¶È£¨0 ~ SERVO_MAX_DEG£©¡£
+// ä¸€ä¸ªèˆµæœºç›®æ ‡ï¼šèˆµæœºå· + ç›®æ ‡è§’åº¦ï¼ˆ0 ~ SERVO_MAX_DEGï¼‰ã€‚
 typedef struct
 {
     uint8_t id;
@@ -39,11 +39,11 @@ typedef struct
 typedef struct
 {
     LegMount *mnt;
-    uint8_t   id[3];        /* J1(Æ«º½)¡¢J2(÷Å)¡¢J3(Ï¥) */
-    float     X0;           /* Õ¾Á¢Î» X */
-    float     Y0;           /* Õ¾Á¢Î» Y */
+    uint8_t   id[3];        /* J1(åèˆª)ã€J2(é«‹)ã€J3(è†) */
+    float     X0;           /* ç«™ç«‹ä½ X */
+    float     Y0;           /* ç«™ç«‹ä½ Y */
     int       lr;           /* LEFT_LEG / RIGHT_LEG */
-    uint8_t   grp;          /* 0 = A ×é£¬1 = B ×é */
+    uint8_t   grp;          /* 0 = A ç»„ï¼Œ1 = B ç»„ */
 } GaitLeg;
 
 void gait_init(GaitServo *list,volatile uint8_t *mode);

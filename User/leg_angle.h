@@ -9,32 +9,32 @@
 
 #define PI 3.14159265358979323846f
 
-// ×óÓÒÍÈ
+// å·¦å³è…¿
 #define LEFT_LEG    (1)
 #define RIGHT_LEG   (2)
 
 
-// ±£´æÈı¸ö¹Ø½Ú½Ç¶È
+// ä¿å­˜ä¸‰ä¸ªå…³èŠ‚è§’åº¦
 typedef struct
 {
-    float theta1;//J1 µÄ×ª¶¯½Ç£¨µ××ù yaw£©
-    float theta2;//J2 µÄ×ª¶¯½Ç£¨÷Å£©
-    float theta3;//J3 µÄÏà¶Ô×ª¶¯½Ç£¨Ï¥£©
-    float theta1_real;//J1 ¶æ»úµÄÊµ¼ÊÊä³ö½Ç¶È
-    float theta2_real;//J2 ¶æ»úµÄÊµ¼ÊÊä³ö½Ç¶È
-    float theta3_real;//J3 ¶æ»úµÄÊµ¼ÊÊä³ö½Ç¶È
+    float theta1;//J1 çš„è½¬åŠ¨è§’ï¼ˆåº•åº§ yawï¼‰
+    float theta2;//J2 çš„è½¬åŠ¨è§’ï¼ˆé«‹ï¼‰
+    float theta3;//J3 çš„ç›¸å¯¹è½¬åŠ¨è§’ï¼ˆè†ï¼‰
+    float theta1_real;//J1 èˆµæœºçš„å®é™…è¾“å‡ºè§’åº¦
+    float theta2_real;//J2 èˆµæœºçš„å®é™…è¾“å‡ºè§’åº¦
+    float theta3_real;//J3 èˆµæœºçš„å®é™…è¾“å‡ºè§’åº¦
 } LegAngle;
 
-// Ò»ÌõÍÈÔÚ»úÌå×ø±êÏµÏÂµÄ°²×°²ÎÊı
+// ä¸€æ¡è…¿åœ¨æœºä½“åæ ‡ç³»ä¸‹çš„å®‰è£…å‚æ•°
 typedef struct
 {
-    float mx;//¸÷ÌõÍÈJ1 ×ªÖáÔÚ»úÌå×ø±êÏÂµÄÎ»ÖÃ
+    float mx;//å„æ¡è…¿J1 è½¬è½´åœ¨æœºä½“åæ ‡ä¸‹çš„ä½ç½®
     float my;
     float mz;
-    float psi;//°²×°·½Î»½Ç£¨¶È£©
-    float L1;//÷Å¶Î
-    float L2;//´óÍÈ
-    float L3;//Ğ¡ÍÈ
+    float psi;//å®‰è£…æ–¹ä½è§’ï¼ˆåº¦ï¼‰
+    float L1;//é«‹æ®µ
+    float L2;//å¤§è…¿
+    float L3;//å°è…¿
 } LegMount;
 
 

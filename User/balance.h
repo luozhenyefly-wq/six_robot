@@ -5,17 +5,17 @@
 #include <math.h> 
 #include "leg_angle.h"
 
-/* ================= ×ËÌ¬Ë®Æ½»· ================= */
-#define LEVEL_LPF        0.30f    /* Ò»½×µÍÍ¨ÏµÊý£¬Ô½Ð¡Ô½Æ½»¬ */
-#define LEVEL_DB_DEG     0.5f     /* ËÀÇø£¬¶È */
-#define LEVEL_GAIN_P     1.3f     /* ¸©ÑöÔöÒæ£º1.0 ¡ú 1.3 ¡ú 1.5 ÍùÉÏÊÔ */
-#define LEVEL_GAIN_R     1.3f     /* ºá¹öÔöÒæ */
-#define LEVEL_SIGN_P     (+1.0f)  /* ¸©Ñö·ûºÅ */
-#define LEVEL_SIGN_R     (-1.0f)  /* ºá¹ö·ûºÅ */
-#define LEVEL_MAX_DEG_P   30.0f    /* ¸©ÑöÉÏÏÞ£¨ÉÏÏÂÆÂ£©£¬¼¸ºÎ¼«ÏÞ ~40¡ã */
-#define LEVEL_MAX_DEG_R   17.0f    /* ºá¹öÉÏÏÞ£¨²àÆÂ£©£¬¼¸ºÎ¼«ÏÞ ~23¡ã */
-#define LEVEL_KI_DEG     0.2f    /* »ý·ÖÏµÊý£¬Ã¿ÅÄÀÛ»ý¶àÉÙ¶È */
-#define LEVEL_INT_MAX    20.0f    /* »ý·ÖÏÞ·ù£¬¶È£¨Òª¹»´ó£¬·ñÔò²¹²»Âú£© */
+/* ================= å§¿æ€æ°´å¹³çŽ¯ ================= */
+#define LEVEL_LPF        0.30f    /* ä¸€é˜¶ä½Žé€šç³»æ•°ï¼Œè¶Šå°è¶Šå¹³æ»‘ */
+#define LEVEL_DB_DEG     0.5f     /* æ­»åŒºï¼Œåº¦ */
+#define LEVEL_GAIN_P     1.3f     /* ä¿¯ä»°å¢žç›Šï¼š1.0 â†’ 1.3 â†’ 1.5 å¾€ä¸Šè¯• */
+#define LEVEL_GAIN_R     1.3f     /* æ¨ªæ»šå¢žç›Š */
+#define LEVEL_SIGN_P     (+1.0f)  /* ä¿¯ä»°ç¬¦å· */
+#define LEVEL_SIGN_R     (-1.0f)  /* æ¨ªæ»šç¬¦å· */
+#define LEVEL_MAX_DEG_P   30.0f    /* ä¿¯ä»°ä¸Šé™ï¼ˆä¸Šä¸‹å¡ï¼‰ï¼Œå‡ ä½•æžé™ ~40Â° */
+#define LEVEL_MAX_DEG_R   17.0f    /* æ¨ªæ»šä¸Šé™ï¼ˆä¾§å¡ï¼‰ï¼Œå‡ ä½•æžé™ ~23Â° */
+#define LEVEL_KI_DEG     0.2f    /* ç§¯åˆ†ç³»æ•°ï¼Œæ¯æ‹ç´¯ç§¯å¤šå°‘åº¦ */
+#define LEVEL_INT_MAX    20.0f    /* ç§¯åˆ†é™å¹…ï¼Œåº¦ï¼ˆè¦å¤Ÿå¤§ï¼Œå¦åˆ™è¡¥ä¸æ»¡ï¼‰ */
 
 void Level_Update(void);
 void Level_Rotate(float *X, float *Y, float *Z);

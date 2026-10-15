@@ -3,17 +3,17 @@
 
 #include "main.h"
 
-/* ±íÇéÖÖÀà */
-#define FACE_NORMAL     0u      /* Æ½³£ */
-#define FACE_HAPPY      1u      /* ¿ªĞÄ */
-#define FACE_SAD        2u      /* ÄÑ¹ı */
-#define FACE_ANGRY      3u      /* ÉúÆø */
-#define FACE_SURPRISE   4u      /* ¾ªÑÈ */
-#define FACE_SLEEP      5u      /* À§ÁË */
-#define FACE_SHAZI      6u      /* Éµ×Ó */
+/* è¡¨æƒ…ç§ç±» */
+#define FACE_NORMAL     0u      /* å¹³å¸¸ */
+#define FACE_HAPPY      1u      /* å¼€å¿ƒ */
+#define FACE_SAD        2u      /* éš¾è¿‡ */
+#define FACE_ANGRY      3u      /* ç”Ÿæ°” */
+#define FACE_SURPRISE   4u      /* æƒŠè®¶ */
+#define FACE_SLEEP      5u      /* å›°äº† */
+#define FACE_SHAZI      6u      /* å‚»å­ */
 
 void Face_Init(void);
-void Face_Update(void);                 /* ÓÉÈÎÎñÖÜÆÚµ÷ÓÃ£¬ÄÚ²¿×ö½ÚÁ÷ */
+void Face_Update(void);                 /* ç”±ä»»åŠ¡å‘¨æœŸè°ƒç”¨ï¼Œå†…éƒ¨åšèŠ‚æµ */
 void Face_SetEmotion(uint8_t emotion);
 
 #endif

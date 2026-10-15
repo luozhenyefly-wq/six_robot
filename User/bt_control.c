@@ -7,7 +7,7 @@ static int16_t  btAngle    = 0;
 static uint32_t btLastTick = 0u;
 
 extern volatile float Pitch, Roll, Yaw;
-extern volatile uint8_t gait_want_mode;//ÒÆ¶¯Ä£Ê½
+extern volatile uint8_t gait_want_mode;//ç§»åŠ¨æ¨¡å¼
 extern volatile uint8_t bt_go_flag;
 extern PID Zhuanwan_PID;
 	
@@ -15,7 +15,7 @@ static uint8_t btRxByte = 0u;
 
 static void Bt_Go(float v, float turn, uint8_t pid)
 {
-	if (bt_go_flag == 0)       //×Ü¿ª¹ØÃ»°´ÏÂ£¬ÔË¶¯Ö¸Áî²»ÉúÐ§
+	if (bt_go_flag == 0)       //æ€»å¼€å…³æ²¡æŒ‰ä¸‹ï¼Œè¿åŠ¨æŒ‡ä»¤ä¸ç”Ÿæ•ˆ
     {
         return;
     }
@@ -34,11 +34,11 @@ static void Bt_ExecAngle(void)
 {
     int16_t deg = btNeg ? (int16_t)(-btAngle) : btAngle;
 
-    while (deg >  180) deg -= 360;      /* ¹éÒ»µ½ ¡À180 */
+    while (deg >  180) deg -= 360;      /* å½’ä¸€åˆ° Â±180 */
     while (deg < -180) deg += 360;
 
     gait_yaw_target = (float)deg;
-    Bt_Go(0.0f, 0.0f, 1u);              /* Ô­µØ¡¢±Õ»·×ªµ½Ä¿±ê */
+    Bt_Go(0.0f, 0.0f, 1u);              /* åŽŸåœ°ã€é—­çŽ¯è½¬åˆ°ç›®æ ‡ */
 
     btState = BT_ST_IDLE;
     btNeg   = 0u;
@@ -70,12 +70,12 @@ static void Bt_HandleByte(uint8_t c)
         }
         else
         {
-            Bt_DropAngle();             /* ·Ç·¨ÊäÈë */
+            Bt_DropAngle();             /* éžæ³•è¾“å…¥ */
         }
         return;
     }
 
-    /* ---- Â¼Êý×Ö ---- */
+    /* ---- å½•æ•°å­— ---- */
     if (btState == BT_ST_NUM)
     {
         if (c >= '0' && c <= '9')
@@ -89,12 +89,12 @@ static void Bt_HandleByte(uint8_t c)
             return;
         }
 
-        /* Óöµ½·ÇÊý×Ö£¬ÃüÁî½áÊø£¬Á¢¿ÌÖ´ÐÐ¡£Õâ¸ö×Ö·û±¾Éí²»ÔÙ½âÊÍ */
+        /* é‡åˆ°éžæ•°å­—ï¼Œå‘½ä»¤ç»“æŸï¼Œç«‹åˆ»æ‰§è¡Œã€‚è¿™ä¸ªå­—ç¬¦æœ¬èº«ä¸å†è§£é‡Š */
         Bt_ExecAngle();
         return;
     }
 
-    /* ---- ¿ÕÏÐ£ºµ¥×Ö·ûÃüÁî ---- */
+    /* ---- ç©ºé—²ï¼šå•å­—ç¬¦å‘½ä»¤ ---- */
     switch (c)
     {
         case 'F': case 'f':
@@ -108,24 +108,24 @@ static void Bt_HandleByte(uint8_t c)
             break;
 
         case 'L': case 'l':
-            Bt_Go(0.0f, -BT_TURN, 0u);      // ¿ª»·³ÖÐø×ó×ª
+            Bt_Go(0.0f, -BT_TURN, 0u);      // å¼€çŽ¯æŒç»­å·¦è½¬
             break;
 
         case 'R': case 'r':
-            Bt_Go(0.0f, BT_TURN, 0u);       // ¿ª»·³ÖÐøÓÒ×ª
+            Bt_Go(0.0f, BT_TURN, 0u);       // å¼€çŽ¯æŒç»­å³è½¬
             break;
 
         case 'S': case 's':
 			gait_pid_en   = 0u;
-            gait_stop_req = 1u;             // ¿ª»·Í£Ö¹
+            gait_stop_req = 1u;             // å¼€çŽ¯åœæ­¢
             break;
 
-		case 'H': case 'h':                 // ±Õ»·Í£Ö¹£ºÍ£ÏÂµ«ÊØ×¡º½Ïò 
+		case 'H': case 'h':                 // é—­çŽ¯åœæ­¢ï¼šåœä¸‹ä½†å®ˆä½èˆªå‘ 
             gait_pid_en   = 1u;
             gait_stop_req = 1u;
             break;
 		
-        case 'A': case 'a':				   //×ªµ½Ä¿±ê½Ç¶È£¨¾ø¶Ô½Ç¶È£©
+        case 'A': case 'a':				   //è½¬åˆ°ç›®æ ‡è§’åº¦ï¼ˆç»å¯¹è§’åº¦ï¼‰
             btState    = BT_ST_SIGN;
             btNeg      = 0u;
             btAngle    = 0;
@@ -141,19 +141,19 @@ static void Bt_HandleByte(uint8_t c)
 		case '7': Face_SetEmotion(FACE_SHAZI);    break;
 		
         default:
-            break;                          // ºöÂÔ \r \n ¿Õ¸ñµÈ 
+            break;                          // å¿½ç•¥ \r \n ç©ºæ ¼ç­‰ 
     }
 }
 
 
 void Bt_Init(void)
 {
-    HAL_UART_Receive_IT(&huart3, &btRxByte, 1);     // Æô¶¯Ê×´Î½ÓÊÕ 
+    HAL_UART_Receive_IT(&huart3, &btRxByte, 1);     // å¯åŠ¨é¦–æ¬¡æŽ¥æ”¶ 
 }
 
 void Bt_OnRxComplete(void)
 {
-	//½«ÊÕµ½µÄÏûÏ¢·Å½øÏûÏ¢¶ÓÁÐÖÐ
+	//å°†æ”¶åˆ°çš„æ¶ˆæ¯æ”¾è¿›æ¶ˆæ¯é˜Ÿåˆ—ä¸­
 	osMessageQueuePut(bt_msg_QueueHandle, &btRxByte, 0, 0); 
 	HAL_UART_Receive_IT(&huart3, &btRxByte, 1);
 }
@@ -162,14 +162,14 @@ void Bt_Poll(void)
 {
      uint8_t c;
 
-    /* ×èÈûµÈÒ»¸ö×Ö½Ú£¬×î¶àµÈ 100ms */
+    /* é˜»å¡žç­‰ä¸€ä¸ªå­—èŠ‚ï¼Œæœ€å¤šç­‰ 100ms */
     if (osMessageQueueGet(bt_msg_QueueHandle, &c, NULL, BT_POLL_TIMEOUT_MS) == osOK)
     {
         Bt_HandleByte(c);
         return;
     }
 
-/* Ö»ÓÐ"100ms Ã»µÈµ½Êý¾Ý"²Å»á×ßµ½ÕâÀï ¡ª¡ª Ë³±ãµ±½Ç¶ÈÂ¼ÈëµÄ³¬Ê±¼ì²é */
+/* åªæœ‰"100ms æ²¡ç­‰åˆ°æ•°æ®"æ‰ä¼šèµ°åˆ°è¿™é‡Œ â€”â€” é¡ºä¾¿å½“è§’åº¦å½•å…¥çš„è¶…æ—¶æ£€æŸ¥ */
     if ((btState != BT_ST_IDLE) &&
         ((HAL_GetTick() - btLastTick) > BT_ANGLE_TIMEOUT_MS))
     {

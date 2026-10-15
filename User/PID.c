@@ -1,10 +1,10 @@
-//×ªÏò»·pid,±£³ÖÒÆ¶¯½Ç¶È±Õ»·
+//è½¬å‘çŽ¯pid,ä¿æŒç§»åŠ¨è§’åº¦é—­çŽ¯
 #include "pid.h"
 
 extern volatile float gait_v;
-PID Zhuanwan_PID;               //×ªÏò»·PID
+PID Zhuanwan_PID;               //è½¬å‘çŽ¯PID
 
-void PID_Init(void)          //PID³õÊ¼»¯
+void PID_Init(void)          //PIDåˆå§‹åŒ–
 {
 	Zhuanwan_PID.Target_Val=0;
 	Zhuanwan_PID.Output_Val=0.0;
@@ -21,32 +21,32 @@ float AnglePID_Realise(PID *pid, float Actual_val, float gyro)
 {
 	pid->Error = Actual_val - pid->Target_Val;
 
-	/* ¹éÒ»»¯µ½ ¡À180 */
+	/* å½’ä¸€åŒ–åˆ° Â±180 */
 	while(pid->Error >  180.0f) pid->Error -= 360.0f;
 	while(pid->Error < -180.0f) pid->Error += 360.0f;
 
 	pid->Integral += pid->Error;
 	
 	/*
-	»ý·ÖÏÞ·ù£¬×îºÃ¼ÓÉÏ£¬¿ÉÒÔ·ÀÖ¹»ý·Ö¹ý±¥ºÍ£¬¾ßÌåÊýÖµÐè¸ù¾ÝÊµ¼Ê²âÊÔÐÞ¸Ä
-	±¾¹¤³ÌÔÚµ÷ÊÔ¹ý³ÌÖÐ·ÇÍâÁ¦»ù±¾²»»á¹ý±¥ºÍ£¬¹Ê´Ë´¦×¢ÊÍ
+	ç§¯åˆ†é™å¹…ï¼Œæœ€å¥½åŠ ä¸Šï¼Œå¯ä»¥é˜²æ­¢ç§¯åˆ†è¿‡é¥±å’Œï¼Œå…·ä½“æ•°å€¼éœ€æ ¹æ®å®žé™…æµ‹è¯•ä¿®æ”¹
+	æœ¬å·¥ç¨‹åœ¨è°ƒè¯•è¿‡ç¨‹ä¸­éžå¤–åŠ›åŸºæœ¬ä¸ä¼šè¿‡é¥±å’Œï¼Œæ•…æ­¤å¤„æ³¨é‡Š
 		if (pid->Integral >  800.0f) pid->Integral =  800.0f;//400
 		if (pid->Integral < -800.0f) pid->Integral = -800.0f;
 	
 	*/
 	
 	/* 
-		D ÏîÖ±½ÓÓÃÍÓÂÝÒÇ½ÇËÙ¶È£¬²»×ö²î·Ö
-	    ºÃ´¦1£ºÃ»ÓÐ"Æô¶¯³å»÷"£¨ÉÏ´ÎÎó²îºÍÕâ´ÎÎÞ¹Ø£©
-	    ºÃ´¦2£º²»·Å´ó Yaw µÄÁ¿»¯ÔëÉù
+		D é¡¹ç›´æŽ¥ç”¨é™€èžºä»ªè§’é€Ÿåº¦ï¼Œä¸åšå·®åˆ†
+	    å¥½å¤„1ï¼šæ²¡æœ‰"å¯åŠ¨å†²å‡»"ï¼ˆä¸Šæ¬¡è¯¯å·®å’Œè¿™æ¬¡æ— å…³ï¼‰
+	    å¥½å¤„2ï¼šä¸æ”¾å¤§ Yaw çš„é‡åŒ–å™ªå£°
 	*/
 	pid->Output_Val = pid->Kp * pid->Error +
 	                  pid->Ki * pid->Integral +
 	                  pid->Kd * gyro;
 
-	/*pid->LastError = pid->Error;       Ô­ÏÈÊÇkdµÄÏµÊý£¬±£Áô£¬ÆäËûµØ·½¿ÉÄÜÓÃ */
+	/*pid->LastError = pid->Error;       åŽŸå…ˆæ˜¯kdçš„ç³»æ•°ï¼Œä¿ç•™ï¼Œå…¶ä»–åœ°æ–¹å¯èƒ½ç”¨ */
 
-	/* Êä³öÏÞ·ù */
+	/* è¾“å‡ºé™å¹… */
 	if(pid->Output_Val > Max_Zhuanwan_Val)       pid->Output_Val = Max_Zhuanwan_Val;
 	else if(pid->Output_Val < Min_Zhuanwan_Val)  pid->Output_Val = Min_Zhuanwan_Val;
 

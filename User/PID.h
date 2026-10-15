@@ -13,14 +13,14 @@
 
 typedef struct
 {
-	int16_t Target_Val;    //Ä¿±êÖµ
-	float Error;         //µÚk´ÎÎó²î
-	float LastError;     //µÚk-1´ÎÎó²î
-	float PrevError;     //µÚk-2´ÎÎó²î
+	int16_t Target_Val;    //ç›®æ ‡å€¼
+	float Error;         //ç¬¬kæ¬¡è¯¯å·®
+	float LastError;     //ç¬¬k-1æ¬¡è¯¯å·®
+	float PrevError;     //ç¬¬k-2æ¬¡è¯¯å·®
 	float Kp,Ki,Kd;
-	float Integral;      //»ı·ÖÖµ
-	float Output_Val;    //Êä³öÖµ
-}PID;//¶¨Òå½á¹¹ÌåÊı¾İÀàĞÍ
+	float Integral;      //ç§¯åˆ†å€¼
+	float Output_Val;    //è¾“å‡ºå€¼
+}PID;//å®šä¹‰ç»“æ„ä½“æ•°æ®ç±»å‹
 
 float AnglePID_Realise(PID *pid, float Actual_val, float gyro);
 void PID_Init(void);

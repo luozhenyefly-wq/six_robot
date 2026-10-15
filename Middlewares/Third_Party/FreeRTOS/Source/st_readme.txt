@@ -2,7 +2,7 @@
   @verbatim
   ******************************************************************************
   *
-  *           Portions Copyright © 2019 STMicroelectronics International N.V. All rights reserved.
+  *           Portions Copyright ?2019 STMicroelectronics International N.V. All rights reserved.
   *           Portions Copyright (C) 2016 Real Time Engineers Ltd, All rights reserved
   *
   * @file    st_readme.txt
@@ -358,7 +358,7 @@
           example : osMutex1Id = osRecursiveMutexCreate (osMutex(Mutex1));
 
       - Fix implementation of functions osSemaphoreWait(), osMutexRelease() and osMutexWait() by using the appropriate
-         freeRTOS ìFromISRî APIs when called from an interrupt.
+         freeRTOS ÊèäromISR?APIs when called from an interrupt.
 
       - Fix compilation warning when the constant INCLUDE_eTaskGetState is not defined
 
