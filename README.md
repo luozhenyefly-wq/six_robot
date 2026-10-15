@@ -220,7 +220,7 @@ JY61P 提供 Yaw，`Zhuanwan_PID` 做航向 PID 控制，按运动状态切换�
 - 本工程舵机为 **270°** 规格，若更换 180° 舵机需修改 `leg.h` 中的 `SERVO_MAX_DEG`
 - `GAIT_DWELL`（帧间喘息时间）**不可删除**，用于防止舵机控制板串口缓冲区溢出
 - 高速前进（`gait_v = 15`）时 PID 参数已单独调过，稳定性较差，慎用
-- **源码编码不统一**：`User/` 下的 21 个 `.c/.h`（以及 HAL 时间基准、FreeRTOS 说明等共 24 个文件）为 **GBK 编码**（Keil 在中文 Windows 下的默认），而 `Core/` 与 CubeMX 生成的文件是 UTF-8。因此在 GitHub 网页上查看这些文件时**中文注释会显示为乱码**，用 Keil 或本地编辑器打开则正常
+- **源码统一为 UTF-8 编码（无 BOM）**：`User/` 下原有 21 个文件为 GBK（Keil 在中文 Windows 下的默认），已于提交 `5a524d6` 统一转为 UTF-8，GitHub 网页端与 Keil 中均可正常显示中文。后续新增文件请保持 UTF-8
 - OLED 若换成 1.3" 屏，把 `OLED.c` 中 `OLED_IS_SH1106` 改为 `1`（SH1106 为 132 列，需列偏移 2）；屏幕不亮可调大 `OLED_I2C_DELAY_US`
 
 ---
