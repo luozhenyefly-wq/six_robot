@@ -1,5 +1,7 @@
 # six_robot — STM32 六足机器人控制程序
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 基于 **STM32F407VET6** 的六足（Hexapod）机器人运动控制器。采用**三角步态（tripod gait）** 实现全向移动，18 路总线舵机驱动 6 条三自由度腿，配合 JY61P 姿态传感器做航向闭环，FreeRTOS 多任务调度，支持蓝牙遥控，并作为 SLAM 建图与自主导航的底层运动平台。
 
 ---
@@ -235,4 +237,18 @@ JY61P 提供 Yaw，`Zhuanwan_PID` 做航向 PID 控制，按运动状态切换�
 
 ## 许可证
 
-本项目未附带开源许可证（All rights reserved）。如需他人使用、修改或分发，请先联系作者。
+本项目采用 **MIT License**，可自由使用、修改、分发（包括商业用途），只需保留版权声明。详见 [LICENSE](LICENSE)。
+
+### 第三方组件
+
+仓库中的以下部分为第三方代码，**各自适用其原许可证**，不受本项目 MIT 许可覆盖：
+
+| 组件 | 路径 | 许可证 |
+|---|---|---|
+| STM32F4xx HAL 驱动 | `Drivers/STM32F4xx_HAL_Driver/` | BSD-3-Clause（© STMicroelectronics） |
+| CMSIS | `Drivers/CMSIS/` | Apache-2.0（© ARM Limited） |
+| FreeRTOS 内核与 CMSIS-RTOS v2 | `Middlewares/Third_Party/FreeRTOS/` | MIT（© Amazon.com, Inc.） |
+| OLED 驱动 | `User/OLED.c`、`OLED.h`、`OLED_Data.*` | 改编自江协科技开源代码 |
+| STM32CubeMX 生成代码 | `Core/`、`MDK-ARM/`、`six_robot.ioc` | ST 模板条款 |
+
+二次分发时请保留上述组件各自的许可证文件与版权声明。
