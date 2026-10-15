@@ -242,7 +242,7 @@ void yaw_send_Task(void *argument)
 	a[7] = 0xBB;
 	
 	HAL_UART_Transmit(&huart6,a,8,100);  
-	osDelay(200);
+	osDelay(20);
   }
   /* USER CODE END yaw_send_Task */
 }

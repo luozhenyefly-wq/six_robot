@@ -218,11 +218,6 @@ void leg_gait(GaitServo *list,volatile uint8_t *mode,volatile uint8_t *want_mode
     {
 		Level_Update();
 		
-		if ((*mode == MOVE) && (gait_hold == 0u))//里程计计算，累加，发送至上位机之后清零
-        {
-            Odom_Add(gait_v * ODOM_K_STRIDE / (float)GAIT_N);
-        }
-		
 		float w_now = 0.0f;
         s = (float)k / (float)GAIT_N;
 		
@@ -310,6 +305,11 @@ void leg_gait(GaitServo *list,volatile uint8_t *mode,volatile uint8_t *want_mode
         GaitPose(list, 3, s, *mode);
         GaitSend(list, 9, GAIT_T_FRAME-15);
 
+		if ((*mode == MOVE) && (gait_hold == 0u))//里程计计算，累加，发送至上位机之后清零
+        {
+            Odom_Add(gait_v * ODOM_K_STRIDE / (float)GAIT_N);
+        }
+		
         /* 【喘息时间 —— 不要删】 */
         osDelay(GAIT_DWELL);
     }	
