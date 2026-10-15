@@ -1,21 +1,27 @@
-/* ============================================================================
- * Servo.c —— 24 路舵机控制器 / 总线舵机（从串口 5 发送）
- *
- * 用 sprintf 拼指令，格式串和手册一一对应：
- *     #004P1500T0800!
- *      #  004   P  1500   T  0800   !
- *      ↑ 3位ID  ↑ 4位PWM  ↑ 4位ms  ↑ 末尾必须有 '!'
- *
- * 固定 15 字节 —— 位数不足要用 0 补齐，所以格式串写成 %03u / %04u。
- * 用法：main 里 MX_UART5_UART_Init(); 之后  Servo_MoveDeg(4, 90, 800);
- * ===========================================================================*/
+/* 
+  本工程使用的是24路舵机控制板，通过上位机串口发送数据控制舵机
+  具体通信协议需要参考不同商家的手册
+  ============================================================================
+  leg.c —— 24 路舵机控制器 / 总线舵机（从串口 5 发送）
+ 
+  用 sprintf 拼指令，格式串和手册一一对应：
+      #004P1500T0800!
+       #  004   P  1500   T  0800   !
+       ↑ 3位ID  ↑ 4位PWM  ↑ 4位ms  ↑ 末尾必须有 '!'
+ 
+  固定 15 字节 —— 位数不足要用 0 补齐，所以格式串写成 %03u / %04u。
+  用法：main 里 MX_UART5_UART_Init(); 之后  Servo_MoveDeg(4, 90, 800);
+  ===========================================================================
+*/
 
 #include "leg.h"
 
-extern UART_HandleTypeDef huart5;       /* CubeMX 生成的串口 5 句柄 */
+extern UART_HandleTypeDef huart5;
 
-/* 把拼好的指令从串口 5 发出去。len 是字符个数（sprintf 的返回值）。
- * 整个文件只有这里需要类型转换：指令是 char*，而 HAL 要 uint8_t* */
+/* 
+   把拼好的指令从串口 5 发出去。len 是字符个数（sprintf 的返回值）。
+   整个文件只有这里需要类型转换：指令是 char*，而 HAL 要 uint8_t* 
+ */
 static void Send(const char *cmd, int len)
 {
     HAL_UART_Transmit(&huart5, (uint8_t *)cmd, (uint16_t)len, 100);
@@ -34,7 +40,7 @@ void Servo_Move(uint8_t id, uint16_t pwm, uint16_t ms)
 
     /* %03u = 至少 3 位、不足补 0；%04u = 至少 4 位、不足补 0
      * sprintf 的返回值 n = 写了几个字符，这里恒为 15 */
-    n = sprintf(cmd, "#%03uP%04uT%04u!",(unsigned)id, (unsigned)pwm, (unsigned)ms); /* 串口上就是 #004P1500T0800! */
+    n = sprintf(cmd, "#%03uP%04uT%04u!",(unsigned)id, (unsigned)pwm, (unsigned)ms);
 							
     Send(cmd, n);                         
 }

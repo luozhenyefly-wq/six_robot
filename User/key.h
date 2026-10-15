@@ -6,5 +6,4 @@
 
 void robot_go_key(void);
 
-
 #endif

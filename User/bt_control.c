@@ -153,6 +153,7 @@ void Bt_Init(void)
 
 void Bt_OnRxComplete(void)
 {
+	//将收到的消息放进消息队列中
 	osMessageQueuePut(bt_msg_QueueHandle, &btRxByte, 0, 0); 
 	HAL_UART_Receive_IT(&huart3, &btRxByte, 1);
 }

@@ -10,7 +10,7 @@
 /*此参数值不仅用于判断，而且用于计算横向字符偏移，默认值为字体像素宽度*/
 #define OLED_8X16				8
 #define OLED_6X8				6
-#define OLED_12X24      12
+#define OLED_12X24              12
 /*IsFilled参数数值*/
 #define OLED_UNFILLED			0
 #define OLED_FILLED				1

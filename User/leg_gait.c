@@ -111,9 +111,9 @@ static float YawPid(void)
 	
 	if (gait_v < 0.0f)//后退pid参数
     {
-       Zhuanwan_PID.Kp = 0.22f;//0.16//18
-       Zhuanwan_PID.Ki = 0.028f;//0.010//15
-       Zhuanwan_PID.Kd = 0.140f;//0.11//126
+       Zhuanwan_PID.Kp = 0.22f;
+       Zhuanwan_PID.Ki = 0.028f;
+       Zhuanwan_PID.Kd = 0.140f;
     }
 	else if(gait_v == 15.0f)//高速前进，不稳定，慎用
 	{
@@ -123,11 +123,11 @@ static float YawPid(void)
 	}
 	else if(gait_v == 10.0f)//正常前进，比较稳定
 	{
-		Zhuanwan_PID.Kp=0.22f; //0.24 //0.5 //0.3 //0.22
-		Zhuanwan_PID.Ki=0.028f;//0.025//0.05//0.05//0.028
-		Zhuanwan_PID.Kd=0.130f;//0.168//0.4 //0.2 //0.130
+		Zhuanwan_PID.Kp=0.22f; 
+		Zhuanwan_PID.Ki=0.028f;
+		Zhuanwan_PID.Kd=0.130f;
 	}
-	else//停止状态，温和一点的参数
+	else//闭环停止状态，温和一点的参数
 	{
 		Zhuanwan_PID.Kp = 0.20f;//0.12
 		Zhuanwan_PID.Ki = 0.015f;
@@ -310,7 +310,7 @@ void leg_gait(GaitServo *list,volatile uint8_t *mode,volatile uint8_t *want_mode
             Odom_Add(gait_v * ODOM_K_STRIDE / (float)GAIT_N);
         }
 		
-        /* 【喘息时间 —— 不要删】 */
+        /* 喘息时间 —— 不要删！！！ */
         osDelay(GAIT_DWELL);
     }	
 }

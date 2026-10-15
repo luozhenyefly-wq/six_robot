@@ -10,7 +10,7 @@
 /* ---- 运动参数 ---- */
 #define BT_V_FWD       10.0f    //前进步幅 cm //12
 #define BT_V_BACK     -10.0f    //后退步幅 cm 
-#define BT_TURN         10.0f    //原地转弯步幅 cm //8
+#define BT_TURN        10.0f    //原地转弯步幅 cm //8
 
 /* ---- 角度录入状态机 ---- */
 #define BT_ST_IDLE     0u
@@ -24,4 +24,5 @@ void Bt_Init(void);             /* 启动接收，在 main() 里调一次 */
 void Bt_OnRxComplete(void);     /* 由 HAL_UART_RxCpltCallback 调用 */
 void Bt_Poll(void);             /* 由 bt_control_Task 循环调用 */
 void Bt_OnError(void);
+
 #endif

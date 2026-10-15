@@ -216,6 +216,9 @@ void yaw_send_Task(void *argument)
   /* Infinite loop */
   for(;;)
   {
+	/*
+	  负责将机器yaw,vyaw,odom发送至上位机，如不需要slam和导航可清空该部分
+	*/
 	float ds = Odom_Take(); 
 	  
 	int16_t t_Yaw=(int16_t)(Yaw*100);
@@ -257,9 +260,12 @@ void yaw_send_Task(void *argument)
 void leg_gait_Task(void *argument)
 {
   /* USER CODE BEGIN leg_gait_Task */
+	
+	/*步态控制任务*/
 	Serial_JY61P_Zero_Yaw();   
 	GaitServo list[9];
 	gait_init(list,&gait_want_mode);
+	
   /* Infinite loop */
   for(;;)
   {

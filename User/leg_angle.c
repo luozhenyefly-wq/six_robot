@@ -1,9 +1,15 @@
+/*
+	腿部运动逆解算
+	定义一条腿上三个关节髋关节J1,大腿关节J2,小腿关节J3
+	J1->J2  L1    1 转轴到 J2 的这一段，方向固定 0°，即从转轴水平伸出去
+	J2->J3  L2    大腿
+	J3      L3    小腿
+*/
 #include "leg_angle.h"
 
 #define L1_ANGLE    (0.0f)
-//L1 是 J1 转轴到 J2 的这一段，方向固定 0°，即从转轴水平伸出去
 
-LegMount LEG1,LEG2,LEG3,LEG4,LEG5,LEG6;
+LegMount LEG1,LEG2,LEG3,LEG4,LEG5,LEG6;//六条腿
 
 void LEG_Init(void)
 {
@@ -72,16 +78,16 @@ float deg_to_rad(float deg)
 
 
 /*
- * 单腿逆运动学（腿坐标系）
- *
- * L3 放开：髋 J2 和膝 J3 两个关节一起定位，所以有两个解
- *
- * solution：1 和 -1 对应两种姿态（膝朝前 / 膝朝后）
- *
- * theta1：J1 转动角（左腿 atan2(x, y)，右腿 atan2(-x, -y)）
- * theta2：J2 转动角，L2 的绝对方向角
- * theta3：J3 的相对转动角（L3 相对 L2 的转角，带正负）
- * *_real：对应舵机的实际输出角度
+  单腿逆运动学（腿坐标系）
+ 
+  L3 放开：髋 J2 和膝 J3 两个关节一起定位，所以有两个解
+ 
+  solution：1 和 -1 对应两种姿态（膝朝前 / 膝朝后）
+ 
+  theta1：J1 转动角（左腿 atan2(x, y)，右腿 atan2(-x, -y)）
+  theta2：J2 转动角，L2 的绝对方向角
+  theta3：J3 的相对转动角（L3 相对 L2 的转角，带正负）
+  *_real：对应舵机的实际输出角度
  */
 LegAngle Leg_IK(float x, float y, float z,
                 float L1, float L2, float L3,
@@ -180,24 +186,24 @@ LegAngle Leg_IK(float x, float y, float z,
 
 
 /*
- * 机体坐标 → 单腿坐标
- *
- * 【角度约定】（和 Leg_IK 里 theta1 的算法一致，别改）
- *   方位角以机体的【+y 轴】为 0°，往【+x 轴】方向为正：
- *
- *           前 +x
- *             ↑
- *     +y ←────┼────→ -y
- *     左      │      右
- *             ↓
- *           后 -x
- *
- *   正方向：左(+y) → 前(+x) → 右(-y) → 后(-x)   （俯视看是顺时针）
- *
- *   psi 的物理含义：这条腿 J1 舵机在中位（theta1 = 0）时，
- *                   髋段 L1 伸出去的那个方向，在机体里的方位角
- *
- * 变换：先减掉基座位置 (mx,my,mz)，再把方位角转掉（azi_leg = azi_body - psi）
+  机体坐标 → 单腿坐标
+ 
+  【角度约定】（和 Leg_IK 里 theta1 的算法一致，别改）
+    方位角以机体的【+y 轴】为 0°，往【+x 轴】方向为正：
+ 
+            前 +x
+              ↑
+      +y ←────┼────→ -y
+      左      │      右
+              ↓
+            后 -x
+ 
+    正方向：左(+y) → 前(+x) → 右(-y) → 后(-x)   （俯视看是顺时针）
+ 
+    psi 的物理含义：这条腿 J1 舵机在中位（theta1 = 0）时，
+                    髋段 L1 伸出去的那个方向，在机体里的方位角
+ 
+  变换：先减掉基座位置 (mx,my,mz)，再把方位角转掉（azi_leg = azi_body - psi）
  */
 void Body_To_Leg(LegMount *leg, float X, float Y, float Z,
                  float *x, float *y, float *z)
@@ -221,7 +227,7 @@ void Body_To_Leg(LegMount *leg, float X, float Y, float Z,
 
 
 /*
- * 给机体坐标，直接出这条腿的关节角
+  给机体坐标，直接出这条腿的关节角
  */
 LegAngle Leg_Solve(LegMount *leg, float X, float Y, float Z,
                    int solution, int left_or_right)

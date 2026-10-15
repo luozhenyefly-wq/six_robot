@@ -1,22 +1,6 @@
-
-/***************************************************************************************
-  * 本程序由江协科技创建并免费开源共享
-  * 你可以任意查看、使用和修改，并应用到自己的项目之中
-  * 程序版权归江协科技所有，任何人或组织不得将其据为己有
-  * 
-  * 程序名称：				0.96寸OLED显示屏驱动程序（4针脚I2C接口）
-  * 程序创建时间：			2023.10.24
-  * 当前程序版本：			V2.0
-  * 当前版本发布时间：		2024.10.20
-  * 
-  * 江协科技官方网站：		jiangxiekeji.com
-  * 江协科技官方淘宝店：	jiangxiekeji.taobao.com
-  * 程序介绍及更新动态：	jiangxiekeji.com/tutorial/oled.html
-  * 
-  * 如果你发现程序中的漏洞或者笔误，可通过邮件向我们反馈：feedback@jiangxiekeji.com
-  * 发送邮件之前，你可以先到更新动态页面查看最新程序，如果此问题已经修改，则无需再发邮件
-  ***************************************************************************************
-  */
+/*
+	本工程oled代码改编自江协科技开源代码
+*/
 
 #include "main.h"
 #include "OLED.h"
@@ -27,7 +11,7 @@
 
 /*OLED 引脚配置*/
 /*引脚统一由 CubeMX 管理：main.h 里由 User Label（OLED_SCL / OLED_SDA）自动生成的宏*/
-/*    OLED_SCL_Pin / OLED_SCL_GPIO_Port / OLED_SDA_Pin / OLED_SDA_GPIO_Port*/
+/*OLED_SCL_Pin / OLED_SCL_GPIO_Port / OLED_SDA_Pin / OLED_SDA_GPIO_Port*/
 
 /*以后要换引脚，只改 CubeMX 并重新生成代码即可，本文件不用动*/
 /*注意1：SCL 与 SDA 需在同一 GPIO 端口*/
@@ -38,7 +22,7 @@
 #define OLED_SDA_PIN     OLED_SDA_Pin
 
 /*I2C 时序延时配置*/
-/*F4 主频 168MHz，比 F1（72MHz）快得多；而内部上拉较弱（约 30~50k）*/
+/*F4 主频 168MHz；而内部上拉较弱（约 30~50k）*/
 /*不加延时时 SCL 翻转过快，总线来不及被拉高，OLED 就收不到数据*/
 /*屏不亮就把 OLED_I2C_DELAY_US 调大（3、4…）；想刷得更快可调到 1 或 0*/
 #define OLED_I2C_DELAY_US    2

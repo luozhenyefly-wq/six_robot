@@ -26,13 +26,14 @@
 #include <stdio.h>      
 #include <string.h>     
 
-/* 舵机行程角：你的舵机是 270°，就填 270；如果是 180° 舵机改成 180 */
+/* 舵机行程角：本工程所使用舵机是 270°，就填 270；如果是 180° 舵机改成 180 */
 #define SERVO_MAX_DEG    270
 
 /* 角度换 PWM：0°→500，中位→1500，满行程→2500
- *   270° 舵机：1500 = 135°
- *   180° 舵机：1500 = 90°
- * 下面这个式子跟着 SERVO_MAX_DEG 自动变 */
+    270° 舵机：1500 = 135°
+    180° 舵机：1500 = 90°
+  下面这个式子跟着 SERVO_MAX_DEG 自动变 
+*/
 #define SERVO_PWM(deg)   (500 + (deg) * 2000 / SERVO_MAX_DEG)
 
 void Servo_Move(uint8_t id, uint16_t pwm, uint16_t ms);    /* 直接给 PWM 500~2500 */

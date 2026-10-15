@@ -1,3 +1,6 @@
+/*
+	通过接收roll,pitch数据进行闭环调节，保持身体平衡
+*/
 #include "balance.h"
 
 extern volatile float Pitch, Roll;

@@ -22,8 +22,6 @@ typedef struct
 	float Output_Val;    //输出值
 }PID;//定义结构体数据类型
 
-
-float SpeedPID_Realise(PID *pid,float Actual_Val);
 float AnglePID_Realise(PID *pid, float Actual_val, float gyro);
 void PID_Init(void);
 

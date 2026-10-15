@@ -1,3 +1,4 @@
+//转向环pid,保持移动角度闭环
 #include "pid.h"
 
 extern volatile float gait_v;
@@ -16,34 +17,6 @@ void PID_Init(void)          //PID初始化
 	Zhuanwan_PID.Kd=0.066;
 }
 
-
-float SpeedPID_Realise(PID *pid,float Actual_Val)
-{
-	pid->Error=pid->Target_Val - Actual_Val;
-	//算法实现
-	pid->Output_Val += pid->Kp * (pid->Error-pid->LastError) +
-					   pid->Ki * pid->Error +
-					   pid->Kd * (pid->Error-2*pid->LastError+pid->PrevError);
-	//误差传递
-	pid->PrevError=pid->LastError;
-	pid->LastError=pid->Error;
-	//输出限幅
-	if(pid->Output_Val > Max_PID_Val)
-	{
-		pid->Output_Val = Max_PID_Val;
-		return Max_PID_Val;
-	}
-	else if(pid->Output_Val < Min_PID_Val)
-	{
-		pid->Output_Val = Min_PID_Val;
-		return Min_PID_Val;
-	}
-	else
-	{
-		return pid->Output_Val;
-	}
-}
-
 float AnglePID_Realise(PID *pid, float Actual_val, float gyro)
 {
 	pid->Error = Actual_val - pid->Target_Val;
@@ -54,19 +27,19 @@ float AnglePID_Realise(PID *pid, float Actual_val, float gyro)
 
 	pid->Integral += pid->Error;
 	
-	//if(gait_v>=0)
-	//{
-	//	if (pid->Integral >  800.0f) pid->Integral =  800.0f;//400
-	//	if (pid->Integral < -800.0f) pid->Integral = -800.0f;
-	//}
-	//else
-	//{
-	//	if (pid->Integral >  600.0f) pid->Integral =  600.0f;
-	//	if (pid->Integral < -600.0f) pid->Integral = -600.0f;
-	//}
-	/* D 项直接用陀螺仪角速度，不做差分
-	 *   好处1：没有"启动冲击"（上次误差和这次无关）
-	 *   好处2：不放大 Yaw 的量化噪声*/
+	/*
+	积分限幅，最好加上，可以防止积分过饱和，具体数值需根据实际测试修改
+	本工程在调试过程中非外力基本不会过饱和，故此处注释
+		if (pid->Integral >  800.0f) pid->Integral =  800.0f;//400
+		if (pid->Integral < -800.0f) pid->Integral = -800.0f;
+	
+	*/
+	
+	/* 
+		D 项直接用陀螺仪角速度，不做差分
+	    好处1：没有"启动冲击"（上次误差和这次无关）
+	    好处2：不放大 Yaw 的量化噪声
+	*/
 	pid->Output_Val = pid->Kp * pid->Error +
 	                  pid->Ki * pid->Integral +
 	                  pid->Kd * gyro;
