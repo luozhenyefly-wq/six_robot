@@ -4,6 +4,12 @@
 
 基于 **STM32F407VET6** 的六足（Hexapod）机器人运动控制器。采用**三角步态（tripod gait）** 实现全向移动，18 路总线舵机驱动 6 条三自由度腿，配合 JY61P 姿态传感器做航向闭环，FreeRTOS 多任务调度，支持蓝牙遥控，并作为 SLAM 建图与自主导航的底层运动平台。
 
+> 📦 **上位机仓库（ROS 2 建图与导航）**：[luozhenyefly-wq/six_robot_slam](https://github.com/luozhenyefly-wq/six_robot_slam)
+>
+> **两个仓库的分工**：本仓库 `six_robot` 是**下位机**，STM32 固件负责步态规划、舵机驱动、姿态解算与里程数据采集；[`six_robot_slam`](https://github.com/luozhenyefly-wq/six_robot_slam) 是**上位机**，运行在 D-Robotics RDK X5（aarch64 / Ubuntu 22.04 / ROS 2 Humble）上，读取激光雷达与下位机串口帧，用 robot_localization (EKF) 融合出里程计、用 slam_toolbox 建 2D 栅格地图，并预留 Nav2 导航接口。
+>
+> 两者通过 **USART6（115200，8 字节帧 / 20ms 周期）** 通信，协议见下方 **6.2 SLAM / 导航数据输出**。
+
 ---
 
 ## 1. 硬件配置
@@ -171,7 +177,7 @@ JY61P 提供 Yaw，`Zhuanwan_PID` 做航向 PID 控制，按运动状态切换�
 
 ### 6.2 SLAM / 导航数据输出（USART6，115200，20ms 周期）
 
-机器人的定位与建图由上位机完成，本机只负责提供运动学与姿态原始数据。固定 8 字节帧，所有量放大 100 倍后以 int16 大端传输：
+机器人的定位与建图由上位机（[`six_robot_slam`](https://github.com/luozhenyefly-wq/six_robot_slam)）完成，本机只负责提供运动学与姿态原始数据。固定 8 字节帧，所有量放大 100 倍后以 int16 大端传输：
 
 | 字节 | 内容 |
 |---|---|
