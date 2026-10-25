@@ -1,0 +1,262 @@
+# six_robot — STM32 六足机器人控制程序
+
+[English](README.md) | **中文**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+基于 **STM32F407VET6** 的六足（Hexapod）机器人运动控制器。采用**三角步态（tripod gait）** 实现全向移动，18 路总线舵机驱动 6 条三自由度腿，配合 JY61P 姿态传感器做航向闭环，FreeRTOS 多任务调度，支持蓝牙遥控，并作为 SLAM 建图与自主导航的底层运动平台。
+
+> 📦 **上位机仓库（ROS 2 建图与导航）**：[luozhenyefly-wq/six_robot_slam](https://github.com/luozhenyefly-wq/six_robot_slam)
+>
+> **两个仓库的分工**：本仓库 `six_robot` 是**下位机**，STM32 固件负责步态规划、舵机驱动、姿态解算与里程数据采集；[`six_robot_slam`](https://github.com/luozhenyefly-wq/six_robot_slam) 是**上位机**，运行在 D-Robotics RDK X5（aarch64 / Ubuntu 22.04 / ROS 2 Humble）上，读取激光雷达与下位机串口帧，用 robot_localization (EKF) 融合出里程计、用 slam_toolbox 建 2D 栅格地图，并预留 Nav2 导航接口。
+>
+> 两者通过 **USART6（115200，8 字节帧 / 20ms 周期）** 通信，协议见下方 **6.2 SLAM / 导航数据输出**。
+
+---
+
+## 1. 硬件配置
+
+| 项目 | 参数 |
+|---|---|
+| 主控 | STM32F407VET6（LQFP100，512KB Flash / 192KB RAM，Cortex-M4F） |
+| 系统时钟 | **168 MHz**（HSI 16MHz → PLLM=8 / PLLN=168 / PLLP=2，APB1=42MHz，APB2=84MHz） |
+| 机械结构 | 六足，每腿 3 自由度（J1 偏航 / J2 髋 / J3 膝），共 **18 路舵机** |
+| 舵机 | 270° 总线舵机，PWM 500–2500 对应 0–270°（中位 1500 = 135°） |
+| 姿态传感器 | JY61P（UART4，115200，读取角度帧 0x53 与角速度帧 0x52） |
+| 显示 | 0.96" OLED，SSD1306 / 128×64（**软件 I2C**：PB8=SCL，PB9=SDA；引脚由 CubeMX 的 User Label 管理） |
+| 遥控 | HC-05 蓝牙串口模块（USART3，9600） |
+| SLAM 上位机 | USART6，115200（向建图/导航主机输出位姿与里程数据：Yaw / vYaw / 位移增量） |
+| 调试 | SWD（PA13=SWDIO，PA14=SWCLK） |
+
+### 串口分配
+
+| 串口 | 波特率 | 用途 | 引脚 |
+|---|---|---|---|
+| USART2 | 9600 | 通用串口 | PA2 / PA3 |
+| USART3 | 9600 | 蓝牙遥控 | PB10 / PB11 |
+| UART4 | 115200 | JY61P 姿态传感器 | PC10 / PC11 |
+| UART5 | 115200 | 舵机控制板（只发） | PC12 (TX) / PD2 (RX) |
+| USART6 | 115200 | SLAM 上位机（位姿与里程数据） | PC6 / PC7 |
+
+> **注意**：本工程使用内部 **HSI**（16MHz）经 PLL 倍频到 168MHz，未使用外部晶振。若你的板子接了 25MHz 晶振，可在 `CubeMX` 里把 RCC 切换到 HSE 并重新生成（需同步调整 PLLM，`six_robot.ioc` 中已记录 HSE_VALUE=25MHz）。
+
+---
+
+## 2. 目录结构
+
+```
+six_robot/
+├── Core/                  # CubeMX 生成的 HAL 初始化与中断
+│   ├── Inc/               #   main.h / usart.h / tim.h / gpio.h / FreeRTOSConfig.h
+│   └── Src/               #   main.c / freertos.c / usart.c / tim.c / gpio.c / 中断
+├── User/                  # ★ 应用层代码（本工程的核心，全部手写）
+├── Drivers/               # STM32F4xx HAL 驱动（CubeMX 管理）
+├── Middlewares/           # FreeRTOS + CMSIS-RTOS v2 中间件
+├── MDK-ARM/               # Keil MDK 工程（six_robot.uvprojx）
+├── tools/                 # 辅助脚本（J-Link 环境修复、Git 速查手册）
+├── six_robot.ioc          # STM32CubeMX 工程配置 ★
+└── .mxproject             # CubeMX 生成的依赖记录
+```
+
+### User/ 应用层模块
+
+| 文件 | 职责 |
+|---|---|
+| `leg_gait.c/h` | **三角步态核心**：足端轨迹规划、组指令打包、航向 PID 闭环、停车流程 |
+| `leg_angle.c/h` | 单腿逆运动学（Leg_IK）、机体坐标→腿坐标变换（Body_To_Leg） |
+| `leg.c/h` | 舵机驱动层：角度/PWM 换算、串口指令发送 |
+| `JY61P.c/h` | 姿态传感器解析（角度帧 / 角速度帧、校验和、开机 Yaw 置零） |
+| `bt_control.c/h` | 蓝牙指令解析（单字符命令 + 角度录入状态机） |
+| `PID.c/h` | 通用 PID 控制器 |
+| `odom.c/h` | 增量式里程计（只测量累加，坐标推算交由上位机做 SLAM 建图与导航） |
+| `balance.c/h` | 机身姿态/水平调整 |
+| `OLED.c/h`, `OLED_Data.c/h` | OLED 驱动与字库（改编自江协科技开源代码） |
+| `face.c/h` | 屏幕表情显示（7 种情绪） |
+| `key.c/h` | 按键扫描（启动/停止） |
+
+---
+
+## 3. 编译与烧录
+
+**环境要求**：Keil MDK 5 + ARM Compiler 5/6 + STM32F4xx DFP
+
+1. 打开 `MDK-ARM/six_robot.uvprojx`
+2. 确认目标（Target）为 `six_robot`，器件 `STM32F407VETx`
+3. 编译（F7）→ 烧录（F8，J-Link / ST-Link）
+
+> **J-Link 用户**：`tools/` 下提供了 `apply-jlink-fix.bat` 和 `fix-jlink-env.ps1`，用于修复 J-Link 环境变量问题导致的下载失败。
+
+**注意**：`MDK-ARM/six_robot/`、`MDK-ARM/robot/` 等编译产物目录已在 `.gitignore` 中排除（约 138MB），克隆后首次编译会自动生成。
+
+若要修改外设配置，用 STM32CubeMX 打开 `six_robot.ioc`，在 **保持 USER CODE 区块内容**的前提下重新生成代码。
+
+---
+
+## 4. 软件架构
+
+### FreeRTOS 任务
+
+使用 CubeMX 生成的 **CMSIS-RTOS v2** 封装，Heap 大小 40KB，启用 FPU。
+
+| 任务 | 优先级 | 栈 (words) | 周期 | 职责 |
+|---|---|---|---|---|
+| `leg_gait` | 14 (最高) | 512 | 1ms 循环 | 步态主循环：轨迹解算 + 舵机指令下发 + 里程计累加 |
+| `yaw_send` | 13 | 256 | 20ms | 向 SLAM 上位机发送位姿与位移增量数据 |
+| `bt_control` | 12 | 256 | 20ms | 蓝牙命令解析、角度录入超时检查 |
+| `key` | 10 | 128 | 20ms | 按键扫描 |
+| `defaultTask` | 9 | 256 | 70ms | OLED 状态刷新 |
+
+任务间通过全局 `volatile` 变量与消息队列（`bt_msg_Queue`，16×uint8）通信；舵机指令采用**静态缓冲区**打包，避免占用任务栈。
+
+### 控制主循环
+
+```
+main()
+ ├─ HAL_Init / SystemClock_Config (168MHz)
+ ├─ 外设初始化：GPIO / UART4,5,2,3,6 / TIM1,9,12,13
+ ├─ 应用初始化：OLED_Init → JY61P_Init → 开机 Yaw 置零
+ │              → PID_Init → LEG_Init → Bt_Init
+ ├─ TIM1 PWM 四通道启动 + 更新中断（10ms）
+ └─ osKernelStart()
+```
+
+---
+
+## 5. 步态算法
+
+### 三角步态（Tripod Gait）
+
+6 条腿按相位分为 **A / B 两组**，交替支撑，任意时刻至少 3 条腿着地：
+
+```
+A 组：前左(1,2,3)  ·  后左(7,8,9)  ·  中右(13,14,15)
+B 组：中左(4,5,6)  ·  前右(10,11,12) · 后右(16,17,18)
+```
+
+### 关键参数（`leg_gait.h`）
+
+| 宏 | 值 | 含义 |
+|---|---|---|
+| `GAIT_N` | 8 | 一个步态周期的帧数 |
+| `GAIT_CYCLE_MS` | 1000 | 周期时长 (ms)，即每帧 125ms |
+| `GAIT_SWING_FRAC` | 0.35 | 摆动相占比（支撑相 0.65） |
+| `GAIT_Z_STAND` | −6.0 | 站立时足端 Z，机身离地 60mm |
+| `GAIT_Z_LIFT` | −1.5 | 摆动相抬腿高度，离地 45mm |
+| `HOLD_ENTER_DEG` / `HOLD_EXIT_DEG` | 1.5 / 3.5 | 航向闭环停止的进入/退出阈值（带迟滞，防止抖动） |
+
+### 足端轨迹（`GaitTraj`）
+
+- **摆动相**（s < 0.35）：抬起与前摆同时进行（余弦插值），走出一条圆弧，两端慢中间快，带仿生感
+- **支撑相**（s ≥ 0.35）：**严格匀速**后退 —— 脚踩地时机身匀速前进，此处若加缓动会让机器人一顿一顿
+
+### 航向闭环
+
+JY61P 提供 Yaw，`Zhuanwan_PID` 做航向 PID 控制，按运动状态切换参数（前进/后退/空载不同 Kp/Ki/Kd）。航向环**每拍计算**（保证微分连续），但只在足端 `d≈0` 的相位点生效，避免腿在摆动中途突变。
+
+### 停车流程
+
+请求停车时不立即断输出，而是等相位到达 `d≈0` 的安全点踩刹车（步幅锁 0，脚垂直落下），再走 3 拍等空中腿落地，保证停车姿态稳定。
+
+---
+
+## 6. 通信协议
+
+### 6.1 舵机控制（UART5，115200）
+
+向总线舵机控制板发送**组指令**，一次最多 9 个舵机：
+
+```
+{#001P1500T0600!#002P1800T0600!...}
+```
+
+| 字段 | 含义 |
+|---|---|
+| `#nnn` | 舵机 ID（001~018） |
+| `Pxxxx` | 目标 PWM（500~2500，自动限幅） |
+| `Txxxx` | 运动时间 (ms，最大 9999) |
+
+一帧 9 个舵机约 138 字节。角度越界（<0 或 >270）时该关节**跳过不发**，而不是夹到行程尽头硬顶舵机。
+
+### 6.2 SLAM / 导航数据输出（USART6，115200，20ms 周期）
+
+机器人的定位与建图由上位机（[`six_robot_slam`](https://github.com/luozhenyefly-wq/six_robot_slam)）完成，本机只负责提供运动学与姿态原始数据。固定 8 字节帧，所有量放大 100 倍后以 int16 大端传输：
+
+| 字节 | 内容 |
+|---|---|
+| 0 | `0xAA` 帧头 |
+| 1~2 | Yaw × 100（int16，大端） |
+| 3~4 | vYaw × 100（偏航角速度，度/秒） |
+| 5~6 | Δs × 100（本帧位移增量，cm，前进为正） |
+| 7 | `0xBB` 帧尾 |
+
+**分层设计**：固件只做测量与累加，**不含三角函数、不做坐标变换**；坐标推算（用 Yaw / vYaw 把位移积分成 x / y，含圆弧积分与蟹行补偿）全部放在上位机的 SLAM 与导航程序里，改标定参数无需重烧固件。里程计比例：
+
+```c
+#define ODOM_K_STRIDE   1.538f   // = 1/(1-0.35)，步幅→实际位移的换算系数
+```
+
+> SLAM / 导航端解析：`Yaw = (int16)(b1<<8|b2)/100.0`，`ds = (int16)(b5<<8|b6)/100.0`
+
+### 6.3 蓝牙遥控（USART3，9600）
+
+**单字符命令**（`bt_go_flag` 为总开关，未按下时运动指令不生效）：
+
+| 指令 | 功能 |
+|---|---|
+| `F` / `f` | 前进（步幅 10cm） |
+| `B` / `b` | 后退（−10cm） |
+| `L` / `l` | 开环持续左转 |
+| `R` / `r` | 开环持续右转 |
+| `S` / `s` | 开环停止 |
+| `H` / `h` | 闭环停止（停下但守住当前航向） |
+| `A` + 角度 | 转到指定绝对角度，如 `A90`、`A-45`（回车/非数字字符结束录入，100ms 无新字符超时执行） |
+| `1`~`7` | OLED 表情：普通 / 开心 / 难过 / 生气 / 惊讶 / 睡眠 / 沙雕 |
+
+角度录入采用三态机（`IDLE → SIGN → NUM`），支持负号与 ±180° 归一化，非法输入自动丢弃。
+
+---
+
+## 7. 姿态与运动学
+
+- **开机零位**：`Serial_JY61P_Zero_Yaw()` 在 `main()` 与步态任务启动时各调用一次，把当前朝向作为 0° 基准
+- **单腿逆运动学**：`Leg_IK(x, y, z, L1, L2, L3, solution, left_or_right)` —— 输入足端在腿坐标系下的位置，输出 J1/J2/J3 三个关节角
+- **坐标变换**：`Body_To_Leg()` 把机体系目标位置转换到各腿坐标系（含安装方位角 `psi` 与安装位置 `mx/my/mz`）
+- **腿的安装参数**在 `leg_gait.c` 的 `leg_cfg[]` 中配置：6 条腿的中立位 (X0, Y0)、舵机 ID 映射、左右侧标识与相位分组
+
+---
+
+## 8. 已知注意事项
+
+- 本工程舵机为 **270°** 规格，若更换 180° 舵机需修改 `leg.h` 中的 `SERVO_MAX_DEG`
+- `GAIT_DWELL`（帧间喘息时间）**不可删除**，用于防止舵机控制板串口缓冲区溢出
+- 高速前进（`gait_v = 15`）时 PID 参数已单独调过，稳定性较差，慎用
+- **源码统一为 UTF-8 编码（无 BOM）**：`User/` 下原有 21 个文件为 GBK（Keil 在中文 Windows 下的默认），已于提交 `5a524d6` 统一转为 UTF-8，GitHub 网页端与 Keil 中均可正常显示中文。后续新增文件请保持 UTF-8
+- OLED 若换成 1.3" 屏，把 `OLED.c` 中 `OLED_IS_SH1106` 改为 `1`（SH1106 为 132 列，需列偏移 2）；屏幕不亮可调大 `OLED_I2C_DELAY_US`
+
+---
+
+## 9. 开发参考
+
+- `tools/git-cheatsheet.md` —— 本项目使用的 Git 常用操作速查
+- STM32CubeMX 工程：`six_robot.ioc`
+- 固件包：STM32Cube FW_F4 V1.28.3
+
+---
+
+## 许可证
+
+本项目采用 **MIT License**，可自由使用、修改、分发（包括商业用途），只需保留版权声明。详见 [LICENSE](LICENSE)。
+
+### 第三方组件
+
+仓库中的以下部分为第三方代码，**各自适用其原许可证**，不受本项目 MIT 许可覆盖：
+
+| 组件 | 路径 | 许可证 |
+|---|---|---|
+| STM32F4xx HAL 驱动 | `Drivers/STM32F4xx_HAL_Driver/` | BSD-3-Clause（© STMicroelectronics） |
+| CMSIS | `Drivers/CMSIS/` | Apache-2.0（© ARM Limited） |
+| FreeRTOS 内核与 CMSIS-RTOS v2 | `Middlewares/Third_Party/FreeRTOS/` | MIT（© Amazon.com, Inc.） |
+| OLED 驱动 | `User/OLED.c`、`OLED.h`、`OLED_Data.*` | 改编自江协科技开源代码 |
+| STM32CubeMX 生成代码 | `Core/`、`MDK-ARM/`、`six_robot.ioc` | ST 模板条款 |
+
+二次分发时请保留上述组件各自的许可证文件与版权声明。
